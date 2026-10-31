@@ -7,7 +7,7 @@ a reply, the extension offers AI suggestions whose content is set by the arm the
 are randomly assigned to. It also logs each step from the first draft to the
 published reply.
 
-The extension is published on the Chrome Web Store as **Digital Media Research**.
+The extension is published on the Chrome Web Store: https://chromewebstore.google.com/detail/digital-media-research/fbgciapdfloecjllcljokeidadlmdnif?
 
 > **For reviewers.** You can run the whole pipeline on your own machine without
 > any credentials. See [Quick start: demonstration mode](#quick-start-demonstration-mode).
