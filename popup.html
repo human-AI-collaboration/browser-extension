@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CommentWiz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Updated to a more elegant font */
+            margin: 0;
+            padding: 0; /* Removed padding from body for full control in container */
+            background-color: #f4f4f4;
+            width: 300px;
+            min-height: 100vh;
+            height: auto;
+            overflow: hidden;
+            background: #202020;
+        }
+        .container {
+            background: #202020;
+            color: white;
+            width: 250px;
+            padding: 10px;
+            /* border-radius: 8px; */
+            box-shadow: 0 4px 8px rgba(120, 120, 120, 0.1);
+            margin: auto;
+            padding-left: 30px; /* Added padding on the left */
+            padding-right: 30px; /* Added padding on the right */
+        }
+        .form-group {
+            display: flex; /* Enables flexbox layout */
+            flex-direction: column;
+            justify-content: space-between; /* Spaces children evenly along the main axis */
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        .form-group label {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Updated to a more elegant font */
+            
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+        }
+    
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #383838;
+            cursor: pointer;
+        }
+    
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #383838;
+            cursor: pointer;
+        }
+    
+        .button-group button {
+            padding: 5px 11px;
+            background-color: #383838;
+            border: 1px solid transparent;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            margin-right: 8px;
+            box-shadow: 0 2px 4px rgba(120, 120, 120, 0.1); /* Subtle shadow for a 3D effect */
+            transition: background-color 0.3s, box-shadow 0.3s; /* Smooth transition for visual feedback */
+        }
+    
+        .button-group button.active, .button-group button:hover {
+            background-color: white;
+            color: #202020;
+            box-shadow: 0 4px 6px rgba(120, 120, 120, 0.2); /* Deeper shadow on active/hover for more depth */
+        }
+    
+        textarea {
+            padding: 10px;
+            border: 1px solid rgba(120, 120, 120, 0.2);
+            border-radius: 4px;
+            width: 90%;
+            min-height: 50px; /* Slightly larger default size */
+            resize: vertical;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Updated to a more elegant font */
+            background-color: #202020;
+            color: white;
+        }
+    
+        .feedback-button {
+            width: 100%;
+            padding: 12px; /* Slightly thicker padding for a better feel */
+            background-color: #383838;
+            box-shadow: 0 2px 4px rgba(120, 120, 120, 0.1); /* Subtle shadow for a 3D effect */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: background-color 0.2s, box-shadow 0.2s; /* Quick transition for feedback */
+        }
+        .save-button {
+            width: 100%;
+            padding: 12px; /* Slightly thicker padding for a better feel */
+            background-color: #86c274;
+            box-shadow: 0 2px 4px rgba(120, 120, 120, 0.1); /* Subtle shadow for a 3D effect */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: background-color 0.2s, box-shadow 0.2s; /* Quick transition for feedback */
+        }
+        .feedback-button:hover {
+            background-color: white; /* Darker green on hover/active */
+            color: #202020;
+            box-shadow: 0 2px 6px rgba(120, 120, 120, 0.3); /* Pop-out effect on click */
+        }
+        .save-button:hover {
+            background-color: #d1f6c6; /* Darker green on hover/active */
+            color: #202020;
+            box-shadow: 0 2px 6px rgba(120, 120, 120, 0.3); /* Pop-out effect on click */
+        }
+        .feedback-button.active {
+            background-color: white; /* Darker green on hover/active */
+            color: #202020;
+            box-shadow: 0 2px 6px rgba(120, 120, 120, 0.3); /* Pop-out effect on click */
+        }
+        .save-button.active {
+            background-color: #d1f6c6; /* Darker green on hover/active */
+            color: #202020;
+            box-shadow: 0 2px 6px rgba(120, 120, 120, 0.3); /* Pop-out effect on click */
+        }
+        
+        #textLabel {
+            font-weight: bold; /* Make labels bold */
+            border-radius: 5px;
+            width: 100%;
+            color: white;
+        }
+        .title {
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .title-group {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* This centers the title text */
+            position: relative; /* Relative positioning to control the absolute positioning of children */
+            margin-bottom: 5px;
+        }
+        .logo {
+            position: absolute;
+            left: 0; /* Adjust this value to fine-tune the logo's horizontal position */
+        }
+        .feedback-group {
+            display: flex;
+            align-items: center;
+            justify-content: left; /* This centers the title text */
+            position: relative; /* Relative positioning to control the absolute positioning of children */
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="title-group">
+            <img width="35px" src="icons8-easy-100.png" alt="CommentWiz" class="logo">
+            <!-- <h1 class="title">Preferences</h1> -->
+            <h1 class="title">Digital Media Research</h1>
+        </div>
+        <!-- <div class="form-group"> -->
+        <!--     <label id="textLabel">Length of Comment</label> -->
+        <!--     <div class="button-group" id="lengthButtons"> -->
+        <!--         <button>Short</button> -->
+        <!--         <button>Medium</button> -->
+        <!--         <button>Long</button> -->
+        <!--     </div> -->
+        <!-- </div> -->
+        <!---->
+        <!-- <div class="form-group"> -->
+        <!--     <label id="textLabel">Tone of Comment</label> -->
+        <!--     <div class="button-group" id="toneButtons"> -->
+        <!--         <button>Balanced</button> -->
+        <!--         <button>Opinionated</button> -->
+        <!--     </div> -->
+        <!-- </div> -->
+        <!-- <div class="form-group"> -->
+        <!--     <label id="textLabel">Humor Level</label> -->
+        <!--     <div class="button-group" id="humorButtons"> -->
+        <!--         <button>Funny</button> -->
+        <!--         <button>Serious</button> -->
+        <!--     </div> -->
+        <!-- </div> -->
+        <!---->
+        <!-- <div class="form-group"> -->
+        <!--     <label id="textLabel">Few Shot Prompt</label> -->
+        <!--     <div class="button-group" id="fewShotButton"> -->
+        <!--         <button>Option 1</button> -->
+        <!--         <button>Option 2</button> -->
+        <!--         <button>Option 3</button> -->
+        <!--     </div> -->
+        <!-- </div> -->
+        <!---->
+        <!-- <div class="form-group"> -->
+        <!--     <label for="instructions" id="textLabel">Additional Instructions (Max 200 chars)</label> -->
+        <!--     <textarea maxlength="200" id="instructions" placeholder="Write any additional instructions here... e.g. 'Do not use sarcastic tone', 'Write in a polite tone'"></textarea> -->
+        <!-- </div> -->
+        <!---->
+        <!-- <div class="form-group"> -->
+        <!--     <label for="sampleComments" id="textLabel">Sample Comments (Max 200 chars)</label> -->
+        <!--     <textarea maxlength="200" id="sampleComments" placeholder="Write sample comments here... e.g. 'This post is amazing, I love it!'"></textarea> -->
+        <!-- </div> -->
+        <!---->
+        <!-- <button class="save-button" id="saveButton">Save Settings</button> -->
+        <!-- <div class="feedback-group"> -->
+        <!--     <h1 class="title">Have thoughts?</h1> -->
+        <!-- </div> -->
+        <button class="feedback-button" id="feedbackButton"> Share Feedback</button>
+        
+    </div>
+
+    <script type="module" src="dist/popup.bundle.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+node_modules
+server/env
+server/extension-env
+prompt-playground/p-test
+.env
+__pycache__/
+.idea/
+*.pyc
+.DS_Store
+*.env
+.env.*
+!.env.example
+server/demo_data/
+analysis/out/
+analysis/synthetic_CombinedActivity.csv

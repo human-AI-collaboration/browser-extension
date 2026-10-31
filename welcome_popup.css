@@ -1,0 +1,110 @@
+.welcome-popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  z-index: 1000;
+  max-width: 80%;
+  font-family: Arial, sans-serif;
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid #000000;
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.popup-header img {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+.popup-title, .popup-welcome {
+  font-weight: bold;
+  color: #000000;
+}
+
+.popup-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+/* ... existing styles ... */
+
+/* Add these new styles for the survey popup */
+.action-btn {
+  padding: 8px 16px;
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  min-width: 80px;
+  min-height: 36px;
+  font-size: 14px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+}
+
+.action-btn:hover {
+  background-color: #1b5e20;
+}
+
+.secondary-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.secondary-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 14px;
+}
+
+.secondary-btn:hover {
+  color: #333;
+}
+
+#got-it-btn {
+  padding: 8px 16px;
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  min-height: 36px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#got-it-btn:hover {
+  background-color: #1b5e20;
+}
+
+#popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 999;
+}

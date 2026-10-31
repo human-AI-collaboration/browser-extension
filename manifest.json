@@ -1,0 +1,67 @@
+{
+  "manifest_version": 3,
+  "name": "Digital Media Research",
+  "version": "1.0.2",
+  "description": "A Chrome extension to understand social media usage",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "tabs",
+    "webNavigation"
+  ],
+  "icons": {
+    "16": "icons8-easy-100-bg.png",
+    "48": "icons8-easy-100-bg.png",
+    "128": "icons8-easy-100-bg.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Open the popup"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.reddit.com/*", "https://new.reddit.com/*", "https://old.reddit.com/*", "https://x.com/*"],
+      "js": [
+        "dist/inject_main.bundle.js",
+        "dist/inject_twitter.bundle.js"
+      ],
+      "world": "MAIN"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dist/activity_tracker.bundle.js"]
+    },
+    {
+      "matches": ["https://www.reddit.com/*", "https://new.reddit.com/*", "https://old.reddit.com/*", "https://x.com/*"],
+      "js": [
+        "dist/welcome_popup.bundle.js",
+        "dist/survey_popup.bundle.js"
+      ],
+      "css": ["welcome_popup.css"]
+    }
+  ],
+  "host_permissions": [
+    "https://www.reddit.com/*",
+    "https://new.reddit.com/*",
+    "https://old.reddit.com/*",
+    "https://x.com/*",
+    "https://pic.x.com/*",
+    "https://api.twitter.com/*"
+  ],
+  "background": {
+    "service_worker": "dist/background.bundle.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }, 
+  "externally_connectable": {
+    "matches": ["https://www.reddit.com/*", "https://x.com/*"]
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["urls.json", "icons8-easy-100-bg.png"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
