@@ -1,4 +1,4 @@
-# A field instrument for randomized AI interventions
+# Digital Media Research: a field instrument for randomized AI writing interventions
 
 This repository contains a Chrome extension and research server for running
 randomized experiments on AI writing assistance on Reddit and X. Participants
@@ -36,19 +36,159 @@ returns the stored arm on every later request. Each installation therefore stays
 one arm across sessions. Researchers can move an installation to another arm by
 editing `treatment_status` in the `Usernames` table.
 
-### What is logged for each reply
+### What is logged
 
-Each post the participant opens gets one row in the `CombinedActivity` table. Its
-`Activity Object` field records:
+Each post a participant opens gets one row in `CombinedActivity`, which records the
+writing process from first draft to published reply (see
+[Database tables](#database-tables)). The extension also logs:
 
-- **Text Box Entries**: the contents of the reply box, sent about every two seconds while the participant types.
-- **Auto Completions**: every inline suggestion shown, with the draft it was generated for (`userTyped`), the prompt, the arm's prompt name (`promptCategory`), the model, the time it was shown, and whether and when it was accepted.
-- **Suggestions**: full replies generated on request (when the `suggest` option is on), with the same fields.
+- installations and their arms (`Usernames`);
+- session-level activity on Reddit, X, and the sites in `urls.json`: time on page and counts of clicks, scrolls, and key presses, but not their content (`UserActivity`);
+- participants' suggestion settings (`User Preferences`);
+- the public posting history of linked accounts, collected by the scheduled job (`RedditHistory`, `TwitterHistory`).
 
-The row also stores the published reply and its platform ID, the text being replied
-to, post information, and ads loaded and seen on the page. The extension also records
-session-level activity (time on page, numbers of clicks, scrolls, and key presses, but
-not their content) on Reddit, X, and the sites listed in `urls.json`.
+---
+
+## Database tables
+
+The server writes to a Supabase (PostgreSQL) database. All tables are linked by
+`UUID`, the random identifier created when the extension is installed. Timestamps
+are ISO 8601 in UTC unless noted.
+
+### CombinedActivity: one row per post opened
+
+This is the main table for analysis. Each row follows one post from the moment the
+participant opens it to the reply they publish, and links every suggestion to the
+draft it was generated for and to the decision the participant made.
+
+| Column | Type | Description |
+|---|---|---|
+| `PostID` | text | `UUID` + `-` + time the post was opened (ms). Identifies the row together with `SessionID` and `UUID`. |
+| `SessionID` | text | `UUID` + `-` + session start time (ms). Links the row to the browsing session. |
+| `UUID` | text | Installation identifier. Joins to `Usernames`. |
+| `Platform` | enum | `Reddit` or `Twitter` (X). |
+| `URL` | text | Page address when the row was last updated. |
+| `Webpage Open Time` | timestamp | When the participant opened the post. |
+| `Parent Post ID` | text | Platform ID of the root post of the thread. |
+| `Reply ID` | text | Platform ID of the comment being replied to, if the participant replied to a comment rather than the post. |
+| `Parent Text` | text | Text of the post or comment being replied to. |
+| `Post Information` | jsonb | Details of the post. Reddit: `title`, `subreddit`, `text`, `score` (upvotes minus downvotes). X: `text`, `imageSource`. |
+| `Activity Object` | jsonb | The writing process for this post (structure below). |
+| `Published Comment` | text | The reply the participant published, if any. |
+| `Published Comment Time` | timestamp | When the reply was published. |
+| `Published Comment ID` | text | Platform ID of the published reply, which links it to the responses it later receives. |
+| `Ads Info` | jsonb | Ads on the page (structure below). |
+| `Entry Timestamp` | timestamp | When the row was created (set by the database). |
+| `Ads Seen On Post`, `Ads Loaded On Post` | array | Columns used by earlier versions. The current version records ads in `Ads Info`. |
+
+**`Activity Object`** contains three time-ordered lists:
+
+```json
+{
+  "Text Box Entries": [
+    {"text": "I think it's quite likely", "timestamp": "..."}
+  ],
+  "Auto Completions": [
+    {
+      "suggestion": " given the unpredictable nature of ...",
+      "userTyped": "I think it's quite likely we won't even get there",
+      "prompt": "role: system, content: ...",
+      "promptCategory": "informative",
+      "model": "gpt-4.1-nano",
+      "timestamp": "...",
+      "accepted": true,
+      "acceptedTimestamp": "..."
+    }
+  ],
+  "Suggestions": [
+    {"suggestion": "...", "userTyped": "...", "prompt": "...",
+     "promptCategory": "informative", "model": "gpt-4.1-nano", "timestamp": "..."}
+  ]
+}
+```
+
+| Field | Description |
+|---|---|
+| `Text Box Entries` | Contents of the reply box, recorded about every two seconds while the participant types. |
+| `Auto Completions` | Every inline suggestion shown. `userTyped` is the draft at the moment the suggestion was requested; `prompt` is the full prompt sent to the model; `promptCategory` is the arm's prompt name; `model` is the language model; `accepted` and `acceptedTimestamp` record whether and when the participant pressed Tab. |
+| `Suggestions` | Full replies generated on request (when the arm's `suggest` option is on), with the same fields except the accept decision. |
+
+The row is built from five events that the extension sends to `/update_combinedActivity`:
+`pageView` (post opened; creates the row and adds post and ad information),
+`textBoxEntry`, `gotCompletion` (suggestion shown), `acceptedAutoComplete`, and
+`publishedComment`.
+
+**`Ads Info`** records the advertisers whose ads were on the page:
+
+| Field | Description |
+|---|---|
+| `adsLoaded` | Advertisers whose ads were loaded on the page. |
+| `adsSeen` | Advertisers whose ads entered the visible part of the screen. |
+| `adLog` | Time-ordered list of `{ad, becameVisible}` and `{ad, becameHidden}` events (ms timestamps). |
+| `stoppedCollecting` | When ad collection for the page ended (ms). |
+
+### Usernames: one row per installation
+
+| Column | Type | Description |
+|---|---|---|
+| `UUID` | text | Installation identifier (UUID v4), created when the extension is installed. |
+| `treatment_status` | text | Arm assigned to the installation (a block name in `experiment_config.yaml`). Edit this to reassign an installation. |
+| `Extension Install Time` | timestamp | When the extension was installed. |
+| `Reddit`, `Twitter` | array | Platform usernames the participant was logged in with while using the extension. |
+| `Reddit Login Times`, `Twitter Login Times` | text (JSON) | List of `(username, time)` pairs recording when each account was first seen. |
+
+### UserActivity: one row per browsing session on a tracked site
+
+A session is one tab on a tracked site, from opening it until it is closed or hidden.
+Rows are also written every five minutes during long sessions.
+
+| Column | Description |
+|---|---|
+| `SessionID (UUIDxStartTime)` | `UUID` + `-` + session start time (ms). |
+| `UUID` | Installation identifier. |
+| `Website/Platform` | Site name or hostname. |
+| `Session Start Timestamp`, `Session end Timestamp` | Start and end of the session. |
+| `Total Session Time` | Session length (hh:mm:ss). |
+| `Posts Opened` | Number of posts opened (Reddit and X). |
+| `Total Clicks`, `Total Scrolls`, `Total Key presses` | Counts only; what was clicked or typed is not recorded. A scroll of one down-arrow press counts as 1. |
+| `Opened Posts Links` | URLs of posts opened (not populated by the current version). |
+| `Ads Info` | Session-level ad information (Reddit and X). |
+
+### User Preferences: one row per settings change
+
+| Column | Description |
+|---|---|
+| `PreferenceID` | `UUID` + time of the change. |
+| `UUID` | Installation identifier. |
+| `Time` | When the settings were changed. |
+| `Length` | Suggested length (Short, Medium, or Long). |
+| `Tone` | Balanced or Opinionated, or empty. |
+| `Humor` | Funny or Serious, or empty. |
+| `Additional Instructions` | Free-text instructions to the model (up to 200 characters). |
+| `Sample Comments` | Example comments in the participant's own style (up to 200 characters). |
+
+The length setting fills the `{length}` placeholder in the prompt templates; if
+none is set, the server uses Medium. In the current version, the extension does not
+send a value for `{combined_prompts}`, so tone, humor, and free-text instructions do
+not enter the configured prompts. (The earlier prompt builder in `server/prompt.py`
+used them.) The settings panel itself is commented out in `popup.html`.
+
+### RedditHistory and TwitterHistory: posting history of linked accounts
+
+Written by the scheduled job in `cron/`. For each username in `Usernames`, the job
+stores the account's recent public activity, which gives pre-treatment baselines and
+later outcomes.
+
+| Table | Columns |
+|---|---|
+| `RedditHistory` | `UUID`, `Username`, `submissions`, `comments` |
+| `TwitterHistory` | `UUID`, `Username`, `timeline`, `pinned`, `user`, `replies` |
+
+### Earlier tables
+
+Versions before May 2025 logged writing activity in separate `RedditActivity` and
+`TwitterActivity` tables, with one row per logged action. The current version writes
+all writing activity to `CombinedActivity` instead.
 
 ---
 
@@ -83,8 +223,9 @@ prompts:
 ```
 
 Prompt templates can use `{writtenText}` (the participant's draft so far), `{title}`
-and `{text}` (the post being replied to), and `{length}` and `{combined_prompts}`
-(the participant's settings). To add an arm, add a block under `treatments` and,
+and `{text}` (the post being replied to), `{length}` (the participant's length
+setting), and `{combined_prompts}` (other participant instructions; see
+[User Preferences](#user-preferences-one-row-per-settings-change)). To add an arm, add a block under `treatments` and,
 if needed, a template under `prompts`.
 
 Changes take effect at different times:
