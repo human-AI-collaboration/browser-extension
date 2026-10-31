@@ -1,0 +1,69 @@
+{
+    "enabled": true,
+    "surveys": [
+        {
+            "id": "initial_feedback",
+            "title": "Initial Feedback Survey",
+            "description": "We'd love to hear about your initial experience with our extension.",
+            "url": "https://your-survey-link.com/initial",
+            "timeToShow": 10000,
+            "reminders": [
+                {
+                    "delay": 86400000,
+                    "message": "Please take a moment to share your feedback"
+                },
+                {
+                    "delay": 259200000
+                },
+                {
+                    "delay": 604800000,
+                    "message": "Final reminder: Your feedback is important to us"
+                }
+            ],
+            "maxReminders": 3,
+            "showOnce": true,
+            "showDeclineButton": false
+        },
+        {
+            "id": "followup_survey_1",
+            "title": "Follow-up Experience Survey",
+            "description": "Please share your thoughts after using our extension for a while.",
+            "url": "https://your-survey-link.com/followup1",
+            "followUpTo": "initial_feedback",
+            "daysAfterPrevious": 7,
+            "onlyIfCompleted": true,
+            "reminders": [
+                {
+                    "delay": 172800000
+                },
+                {
+                    "delay": 432000000
+                }
+            ],
+            "showOnce": true,
+            "showDeclineButton": true
+        },
+        {
+            "id": "followup_survey_2",
+            "title": "Final Research Survey",
+            "description": "Please complete this final survey to help with our research.",
+            "url": "https://your-survey-link.com/followup2",
+            "followUpTo": "followup_survey_1",
+            "daysAfterPrevious": 14,
+            "onlyIfCompleted": true,
+            "reminders": [
+                {
+                    "delay": 172800000
+                },
+                {
+                    "delay": 345600000
+                },
+                {
+                    "delay": 604800000
+                }
+            ],
+            "showOnce": true,
+            "showDeclineButton": false
+        }
+    ]
+}

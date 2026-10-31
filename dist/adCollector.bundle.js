@@ -1,0 +1,1 @@
+(()=>{"use strict";new Set,new Set,new Set,new Set;const t={callback:null,platform:null},e=window.location.hostname.toLowerCase();e.endsWith("twitter.com")||e.endsWith("x.com")?t.platform="twitter":(e.endsWith("reddit.com")||e.endsWith("redd.it"))&&(t.platform="reddit")})();
