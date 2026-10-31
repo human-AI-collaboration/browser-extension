@@ -1,4 +1,4 @@
-# Digital Media Research: a field instrument for randomized AI writing interventions
+# A field instrument for randomized AI interventions
 
 This repository contains a Chrome extension and research server for running
 randomized experiments on AI writing assistance on Reddit and X. Participants
